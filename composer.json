@@ -1,0 +1,30 @@
+{
+  "name": "tdw/routing",
+  "description": "Simple router to GET and POST requests.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Tiago Lopes",
+      "email": "tiago.desenvolvedorweb@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.0",
+    "guzzlehttp/psr7": "^1.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.3",
+    "squizlabs/php_codesniffer": "^3.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tdw\\Routing\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\Routing\\": "tests/"
+    }
+  }
+}
