@@ -28,7 +28,7 @@ $routes = new \Tdw\Routing\Routes();
 <?php
 
 $routes->addGET(new \Tdw\Routing\Route('/', function (){
-    //
+    echo 'Home page';
 }));
 ```
 
