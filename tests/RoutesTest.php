@@ -185,14 +185,12 @@ class RoutesTest extends TestCase
         $request = new ServerRequest(new GET(), '/articles/create');
         $routes = new Routes();
         $route = new Route('/not-found', function () {
-
         });
         $routes->addGET($route);
 
         //act
         $routes->matchCurrent($request);
         //assert
-
     }
 
     /**
@@ -206,14 +204,12 @@ class RoutesTest extends TestCase
         $request = new ServerRequest(new GET(), '/articles/create');
         $routes = new Routes();
         $route = new Route('/not-found', function () {
-
         });
         $routes->addGET($route);
 
         //act
-        $routes->generateUrl('route-name',[]);
+        $routes->generateUrl('route-name', []);
 
         //assert
-
     }
 }
