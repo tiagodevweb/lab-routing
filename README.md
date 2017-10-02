@@ -32,7 +32,7 @@ $routes->addGET(new \Tdw\Routing\Route('/', function (){
 }));
 ```
 
-`Action`
+`Action and route name`
 ```php
 <?php
 
@@ -66,4 +66,39 @@ var_dump($currentRoute);
 ```
 \Tdw\Routing\Exception\RouteNotFoundException
 \Tdw\Routing\Exception\RouteNameNotFoundException
+```
+
+## Integration suggestion
+
+```php
+<?php
+
+class App
+{
+    /**
+     * @var \Tdw\Routing\Contract\Routes
+     */
+    private $routes;
+
+    function __construct(\Tdw\Routing\Contract\Routes $routes)
+    {
+        $this->routes = $routes;
+    }
+
+    function run(\Psr\Http\Message\ServerRequestInterface $request)
+    {
+        if ($route = $this->routes->matchCurrent($request)) {
+            if ($route->getCallback() instanceof Closure) {
+                return call_user_func_array($route->getCallback(), $route->getParameters());
+            }
+            list( $action, $method ) = explode('@', $route->getCallback());
+            return call_user_func_array([new $action, $method], $route->getParameters());
+
+        }
+        return new \GuzzleHttp\Psr7\Response(404, [], 'Page Not Found');
+    }
+}
+
+(new App($routes))->run(\GuzzleHttp\Psr7\ServerRequest::fromGlobals());
+
 ```
