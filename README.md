@@ -2,6 +2,8 @@
 
 Simple router to GET and POST requests.
 
+[![Build Status](https://travis-ci.org/tiagodevweb/routing.svg?branch=master)](https://travis-ci.org/tiagodevweb/routing)
+
 ## Requirements
 
 PHP: >=7.1
