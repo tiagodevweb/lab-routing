@@ -69,7 +69,7 @@ class RoutesTest extends TestCase
         //arrange
         $request = new ServerRequest(new GET(), '/articles');
         $routes = new Routes();
-        $route = new Route('/articles', 'App\ArticlesAction@index');
+        $route = new Route('/articles', 'App\ArticlesAction@index', 'articles.index');
         $routes->addGET($route);
 
         //act
@@ -88,7 +88,7 @@ class RoutesTest extends TestCase
         //arrange
         $request = new ServerRequest(new GET(), '/articles/show/25');
         $routes = new Routes();
-        $route = new Route('/articles/show/{id}', 'App\ArticlesAction@show');
+        $route = new Route('/articles/show/{id}', 'App\ArticlesAction@show', 'articles.single');
         $routes->addGET($route);
 
         //act
@@ -109,7 +109,7 @@ class RoutesTest extends TestCase
         //arrange
         $request = new ServerRequest(new POST(), '/articles/create');
         $routes = new Routes();
-        $route = new Route('/articles/create', 'App\ArticlesAction@create');
+        $route = new Route('/articles/create', 'App\ArticlesAction@create', 'articles.create');
         $routes->addPOST($route);
 
         //act
@@ -146,10 +146,10 @@ class RoutesTest extends TestCase
         //arrange
         $request = new ServerRequest(new GET(), '/articles/create');
         $routes = new Routes();
-        $routeCreate = new Route('/articles/create', 'App\ArticlesAction@create');
-        $routeSave = new Route('/articles/save', 'App\ArticlesAction@save');
-        $routeEdit = new Route('/articles/update', 'App\ArticlesAction@edit');
-        $routeUpdate = new Route('/articles/update', 'App\ArticlesAction@update');
+        $routeCreate = new Route('/articles/create', 'App\ArticlesAction@create', 'articles.create');
+        $routeSave = new Route('/articles/save', 'App\ArticlesAction@save', 'articles.save');
+        $routeEdit = new Route('/articles/update', 'App\ArticlesAction@edit', 'articles.edit');
+        $routeUpdate = new Route('/articles/update', 'App\ArticlesAction@update', 'articles.update');
         $routes->addGET($routeCreate)
                ->addPOST($routeSave)
                ->addGET($routeEdit)
@@ -185,7 +185,7 @@ class RoutesTest extends TestCase
         $request = new ServerRequest(new GET(), '/articles/create');
         $routes = new Routes();
         $route = new Route('/not-found', function () {
-        });
+        }, 'articles.create');
         $routes->addGET($route);
 
         //act
@@ -204,7 +204,7 @@ class RoutesTest extends TestCase
         $request = new ServerRequest(new GET(), '/articles/create');
         $routes = new Routes();
         $route = new Route('/not-found', function () {
-        });
+        }, 'articles.create');
         $routes->addGET($route);
 
         //act

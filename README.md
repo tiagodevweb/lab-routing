@@ -12,6 +12,9 @@ PHP: >=7.1
 
 ```bash
 $ composer require tdw/routing
+
+require 'to/path/vendor/autoload.php';
+
 ```
 
 ## Usage
@@ -19,8 +22,6 @@ $ composer require tdw/routing
 `Instance`
 ```php
 <?php
-
-require 'vendor/autoload.php';
 
 $routes = new \Tdw\Routing\Routes();
 ```
@@ -31,26 +32,45 @@ $routes = new \Tdw\Routing\Routes();
 
 $routes->addGET(new \Tdw\Routing\Route('/', function (){
     echo 'Home page';
-}));
+}, 'home'));
 ```
 
 `Action and route name`
 ```php
 <?php
 
-$routes->addGET(new \Tdw\Routing\Route('/', 'App\ArticleAction@index', 'article.index'));
-$routes->addPOST(new \Tdw\Routing\Route('/', 'App\ArticleAction@save', 'article.save'));
+class ArticleAction
+{
+    /**
+     * Route GET
+     */
+    public function index()
+    {
+        //
+    }
+
+    /**
+     * Route POST
+     */
+    public function save()
+    {
+        //
+    }
+}
+
+$routes->addGET(new \Tdw\Routing\Route('/articles', 'ArticleAction@index', 'article.index'));
+$routes->addPOST(new \Tdw\Routing\Route('/articles/save', 'ArticleAction@save', 'article.save'));
 ```
 
 `Rule`
 ```php
 <?php
 
-$route = new \Tdw\Routing\Route('/posts/{slug}/{id}', function (){
-  //
-});
-$route->addRule('slug', new \Tdw\Routing\Rule\Slug());
-$route->addRule('id', new \Tdw\Routing\Rule\Id());
+$route = (new \Tdw\Routing\Route('/article/{slug}/{id}', function () {
+    //
+}, 'articles.show'))
+    ->addRule('slug', new \Tdw\Routing\Rule\Slug())
+    ->addRule('id', new \Tdw\Routing\Rule\Id());
 $routes->addGET($route);
 ```
 

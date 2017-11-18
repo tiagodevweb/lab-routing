@@ -38,9 +38,9 @@ class RouteTest extends TestCase
         $callable = function () {
         };
         $name = 'articles.show';
-        $route = (new Route('/articles/show/{slug}/{id}', $callable, $name))
-            ->addRule('slug', new Slug())
-            ->addRule('id', new Id());
+        $route = new Route('/articles/show/{slug}/{id}', $callable, $name);
+        $returnSlug = $route->addRule('slug', new Slug());
+        $returnId = $route->addRule('id', new Id());
 
         //act
         $expectedName = $name;
@@ -54,6 +54,8 @@ class RouteTest extends TestCase
         $this->assertEquals($expectedName, $actualName);
         $this->assertEquals($expectedCallback, $actualCallback);
         $this->assertEquals($expectedRules, $actualRules);
+        $this->assertInstanceOf(Route::class, $returnSlug);
+        $this->assertInstanceOf(Route::class, $returnId);
     }
 
     /**
@@ -173,7 +175,7 @@ class RouteTest extends TestCase
     {
         //arrange
         $route = (new Route('/articles', function () {
-        }));
+        }, 'articles.index'));
 
         //act
         $expected = '/articles';
@@ -190,7 +192,7 @@ class RouteTest extends TestCase
     {
         //arrange
         $route = (new Route('/articles/{slug}/{id}', function () {
-        }));
+        }, 'articles.single'));
 
         //act
         $expected = '/articles/title-post/100';

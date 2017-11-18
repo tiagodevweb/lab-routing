@@ -17,7 +17,7 @@ class Route implements IRoute
     private $rules = [];
     private $parameters = [];
 
-    public function __construct(string $path, $callback, string $name = null)
+    public function __construct(string $path, $callback, string $name)
     {
         $this->path = $path;
         $this->callback = $callback;
