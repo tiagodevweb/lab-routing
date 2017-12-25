@@ -27,11 +27,11 @@ class Route implements IRoute
 
     public function addRule(string $key, Rule $rule): IRoute
     {
-        $this->rules[$key] = $rule;
+        $this->rules[$key] = $rule->asRegex();
         return $this;
     }
 
-    public function match(UriInterface $uri): bool
+    public function parseUri(UriInterface $uri): bool
     {
         if (preg_match($this->regex(), trim($uri->getPath(), '/'), $matches)) {
             array_shift($matches);
@@ -41,7 +41,7 @@ class Route implements IRoute
         return false;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
@@ -61,7 +61,7 @@ class Route implements IRoute
         return $this->rules;
     }
 
-    public function getUrl(array $parameters): string
+    public function getUri(array $parameters): string
     {
         $url = $this->path;
         foreach ($parameters as $k => $v) {
@@ -88,7 +88,7 @@ class Route implements IRoute
         if (strpos($this->path, '{') and strpos($this->path, '}')) {
             $parameters = array_filter(explode('/', $this->path));
             foreach ($parameters as $parameter) {
-                if ('{' == $parameter[0] and '}' == $parameter[-1]) {
+                if ('{' === $parameter[0] and '}' === substr($parameter, -1)) {
                     $this->addRule(str_replace(['{','}'], '', $parameter), new Url());
                 }
             }

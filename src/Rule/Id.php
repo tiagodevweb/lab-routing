@@ -8,7 +8,7 @@ use Tdw\Routing\Contract\Rule;
 
 class Id implements Rule
 {
-    public function __toString()
+    public function asRegex(): string
     {
         return '[0-9]+';
     }

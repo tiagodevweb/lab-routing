@@ -6,5 +6,8 @@ namespace Tdw\Routing\Contract;
 
 interface Rule
 {
-    public function __toString();
+    /**
+     * @return string
+     */
+    public function asRegex(): string;
 }

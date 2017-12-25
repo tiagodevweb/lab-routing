@@ -6,7 +6,6 @@ use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Tdw\Routing\Route;
 use Tdw\Routing\Contract\Route as RouteInterface;
-use Tdw\Routing\Method\GET;
 use Tdw\Routing\Rule\Id;
 use Tdw\Routing\Rule\Slug;
 
@@ -90,12 +89,12 @@ class RouteTest extends TestCase
     public function testMatchShouldReturnTrue()
     {
         //arrange
-        $request = new ServerRequest(new GET(), '/articles');
+        $request = new ServerRequest('GET', '/articles');
         $name = 'articles.show';
         $route = (new Route('/articles', '\App\ArticlesAction@index', $name));
 
         //act
-        $expected = $route->match($request->getUri());
+        $expected = $route->parseUri($request->getUri());
         $expectedParameters = [];
         $actualParameters = $route->getParameters();
 
@@ -110,12 +109,12 @@ class RouteTest extends TestCase
     public function testMatchShouldReturnFalse()
     {
         //arrange
-        $request = new ServerRequest(new GET(), '/posts');
+        $request = new ServerRequest('GET', '/posts');
         $name = 'articles.show';
         $route = (new Route('/articles', '\App\ArticlesAction@index', $name));
 
         //act
-        $expected = $route->match($request->getUri());
+        $expected = $route->parseUri($request->getUri());
         $expectedParameters = [];
         $actualParameters = $route->getParameters();
 
@@ -130,14 +129,14 @@ class RouteTest extends TestCase
     public function testMatchShouldReturnTrueWithRule()
     {
         //arrange
-        $request = new ServerRequest(new GET(), '/articles/show/title-post/25');
+        $request = new ServerRequest('GET', '/articles/show/title-post/25');
         $name = 'articles.show';
         $route = (new Route('/articles/show/{slug}/{id}', '\App\ArticlesAction@show', $name))
             ->addRule('slug', new Slug())
             ->addRule('id', new Id());
 
         //act
-        $expected = $route->match($request->getUri());
+        $expected = $route->parseUri($request->getUri());
         $expectedParameters = ['slug' => 'title-post','id' => '25'];
         $actualParameters = $route->getParameters();
 
@@ -152,14 +151,14 @@ class RouteTest extends TestCase
     public function testMatchShouldReturnFalseWithRule()
     {
         //arrange
-        $request = new ServerRequest(new GET(), '/articles/show/title-post');
+        $request = new ServerRequest('GET', '/articles/show/title-post');
         $name = 'articles.show';
         $route = (new Route('/articles/show/{slug}/{id}', '\App\ArticlesAction@show', $name))
             ->addRule('slug', new Slug())
             ->addRule('id', new Id());
 
         //act
-        $expected = $route->match($request->getUri());
+        $expected = $route->parseUri($request->getUri());
         $expectedParameters = [];
         $actualParameters = $route->getParameters();
 
@@ -179,7 +178,7 @@ class RouteTest extends TestCase
 
         //act
         $expected = '/articles';
-        $actual = $route->getUrl([]);
+        $actual = $route->getUri([]);
 
         //assert
         $this->assertEquals($expected, $actual);
@@ -196,7 +195,7 @@ class RouteTest extends TestCase
 
         //act
         $expected = '/articles/title-post/100';
-        $actual = $route->getUrl(['slug'=>'title-post','id'=>100]);
+        $actual = $route->getUri(['slug'=>'title-post','id'=>100]);
 
         //assert
         $this->assertEquals($expected, $actual);

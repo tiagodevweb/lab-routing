@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace Tdw\Routing;
 
 use Psr\Http\Message\ServerRequestInterface;
-use Tdw\Routing\Contract\Method;
 use Tdw\Routing\Contract\Route as IRoute;
-use Tdw\Routing\Contract\Routes as IRoutes;
+use Tdw\Routing\Contract\Router as IRouter;
 use Tdw\Routing\Exception\RouteNameNotFoundException;
 use Tdw\Routing\Exception\RouteNotFoundException;
-use Tdw\Routing\Method\GET;
-use Tdw\Routing\Method\POST;
 
-class Routes implements IRoutes
+class Router implements IRouter
 {
 
     /**
@@ -21,26 +18,26 @@ class Routes implements IRoutes
      */
     private $routes = [];
 
-    public function addGET(IRoute $route): IRoutes
+    public function addGET(IRoute $route): IRouter
     {
-        return $this->add($route, new GET());
+        return $this->add($route, 'GET');
     }
 
-    public function addPOST(IRoute $route): IRoutes
+    public function addPOST(IRoute $route): IRouter
     {
-        return $this->add($route, new POST());
+        return $this->add($route, 'POST');
     }
 
     /**
      * @inheritdoc
      */
-    public function generateUrl(string $routeName, array $parameters): string
+    public function generateUri(string $name, array $parameters): string
     {
         /**@var IRoute $route*/
         foreach ($this->routes as $routes) {
             foreach ($routes as $route) {
-                if ($routeName === $route->getName()) {
-                    return $route->getUrl($parameters);
+                if ($name === $route->getName()) {
+                    return $route->getUri($parameters);
                 }
             }
         }
@@ -50,18 +47,21 @@ class Routes implements IRoutes
     /**
      * @inheritdoc
      */
-    public function matchCurrent(ServerRequestInterface $request): IRoute
+    public function match(ServerRequestInterface $request): IRoute
     {
         /** @var Route $route */
         foreach ($this->routes[$request->getMethod()] as $route) {
-            if ($route->match($request->getUri())) {
+            if ($route->parseUri($request->getUri())) {
                 return $route;
             }
         }
         throw new RouteNotFoundException();
     }
 
-    public function all(?string $method = null): array
+    /**
+     * @inheritdoc
+     */
+    public function all(string $method = null): array
     {
         if ($method) {
             $arr = [];
@@ -75,12 +75,20 @@ class Routes implements IRoutes
         return $this->routes;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function count()
     {
         return count($this->routes);
     }
 
-    private function add(IRoute $route, Method $method): IRoutes
+    /**
+     * @param IRoute $route
+     * @param string $method
+     * @return IRouter
+     */
+    private function add(IRoute $route, string $method): IRouter
     {
         $this->routes[(string)$method][] = $route;
         return $this;

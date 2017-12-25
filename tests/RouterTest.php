@@ -4,26 +4,35 @@ namespace Tests\Routing;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
-use Tdw\Routing\Contract\Routes as RoutesInterface;
-use Tdw\Routing\Method\GET;
-use Tdw\Routing\Method\POST;
+use Tdw\Routing\Contract\Router as RouterInterface;
+use Tdw\Routing\Exception\RouteNameNotFoundException;
+use Tdw\Routing\Exception\RouteNotFoundException;
 use Tdw\Routing\Route;
-use Tdw\Routing\Routes;
+use Tdw\Routing\Router;
 use Tdw\Routing\Rule\Url;
 
-class RoutesTest extends TestCase
+class RouterTest extends TestCase
 {
+    /**
+     * @var Router
+     */
+    protected $router;
+
+    public function setUp()
+    {
+        $this->router = new Router();
+    }
+
     /**
      * @group unitary
      */
     public function testInstanceOf()
     {
         //arrange
-        $routes = new Routes();
 
         //act
-        $expected = RoutesInterface::class;
-        $actual = $routes;
+        $expected = RouterInterface::class;
+        $actual = $this->router;
 
         //assert
         $this->assertInstanceOf($expected, $actual);
@@ -35,13 +44,12 @@ class RoutesTest extends TestCase
     public function testShouldReturnFullStateEmpty()
     {
         //arrange
-        $routes = new Routes();
 
         //act
         $expectedCount = 0;
 
         //assert
-        $this->assertCount($expectedCount, $routes);
+        $this->assertCount($expectedCount, $this->router);
     }
 
     /**
@@ -50,15 +58,14 @@ class RoutesTest extends TestCase
     public function testShouldReturnFullStateWithAddRoute()
     {
         //arrange
-        $routes = new Routes();
-        $routes->addGET($this->createMock(Route::class))
+        $this->router->addGET($this->createMock(Route::class))
                ->addPOST($this->createMock(Route::class));
 
         //act
         $expectedCount = 2;
 
         //assert
-        $this->assertCount($expectedCount, $routes);
+        $this->assertCount($expectedCount, $this->router);
     }
 
     /**
@@ -67,14 +74,13 @@ class RoutesTest extends TestCase
     public function testShouldReturnMatchCurrentRouteGet()
     {
         //arrange
-        $request = new ServerRequest(new GET(), '/articles');
-        $routes = new Routes();
+        $request = new ServerRequest('GET', '/articles');
         $route = new Route('/articles', 'App\ArticlesAction@index', 'articles.index');
-        $routes->addGET($route);
+        $this->router->addGET($route);
 
         //act
         $expected = $route;
-        $actual = $routes->matchCurrent($request);
+        $actual = $this->router->match($request);
 
         //assert
         $this->assertEquals($expected, $actual);
@@ -86,19 +92,18 @@ class RoutesTest extends TestCase
     public function testShouldReturnMatchCurrentRouteGetWithParameters()
     {
         //arrange
-        $request = new ServerRequest(new GET(), '/articles/show/25');
-        $routes = new Routes();
+        $request = new ServerRequest('GET', '/articles/show/25');
         $route = new Route('/articles/show/{id}', 'App\ArticlesAction@show', 'articles.single');
-        $routes->addGET($route);
+        $this->router->addGET($route);
 
         //act
         $expected = $route;
-        $actual = $routes->matchCurrent($request);
+        $actual = $this->router->match($request);
 
         //assert
         $this->assertEquals($expected, $actual);
         $this->assertEquals(['id' => 25], $route->getParameters());
-        $this->assertEquals(['id' => new Url()], $route->getRules());
+        $this->assertEquals(['id' => (new Url())->asRegex()], $route->getRules());
     }
 
     /**
@@ -107,14 +112,13 @@ class RoutesTest extends TestCase
     public function testShouldReturnMatchCurrentRoutePost()
     {
         //arrange
-        $request = new ServerRequest(new POST(), '/articles/create');
-        $routes = new Routes();
+        $request = new ServerRequest('POST', '/articles/create');
         $route = new Route('/articles/create', 'App\ArticlesAction@create', 'articles.create');
-        $routes->addPOST($route);
+        $this->router->addPOST($route);
 
         //act
         $expected = $route;
-        $actual = $routes->matchCurrent($request);
+        $actual = $this->router->match($request);
 
         //assert
         $this->assertEquals($expected, $actual);
@@ -126,13 +130,12 @@ class RoutesTest extends TestCase
     public function testShouldReturnUrlCreated()
     {
         //arrange
-        $routes = new Routes();
         $route = new Route('/articles/show/{slug}/{id}', 'App\ArticlesAction@create', 'articles.show');
-        $routes->addPOST($route);
+        $this->router->addPOST($route);
 
         //act
         $expected = '/articles/show/title-post/100';
-        $actual = $routes->generateUrl('articles.show', ['slug' => 'title-post', 'id' => 100]);
+        $actual = $this->router->generateUri('articles.show', ['slug' => 'title-post', 'id' => 100]);
 
         //assert
         $this->assertEquals($expected, $actual);
@@ -144,13 +147,12 @@ class RoutesTest extends TestCase
     public function testShouldReturnAllRoutes()
     {
         //arrange
-        $request = new ServerRequest(new GET(), '/articles/create');
-        $routes = new Routes();
+        $request = new ServerRequest('GET', '/articles/create');
         $routeCreate = new Route('/articles/create', 'App\ArticlesAction@create', 'articles.create');
         $routeSave = new Route('/articles/save', 'App\ArticlesAction@save', 'articles.save');
         $routeEdit = new Route('/articles/update', 'App\ArticlesAction@edit', 'articles.edit');
         $routeUpdate = new Route('/articles/update', 'App\ArticlesAction@update', 'articles.update');
-        $routes->addGET($routeCreate)
+        $this->router->addGET($routeCreate)
                ->addPOST($routeSave)
                ->addGET($routeEdit)
                ->addPOST($routeUpdate);
@@ -164,51 +166,49 @@ class RoutesTest extends TestCase
                 $routeSave, $routeUpdate
             ]
         ];
-        $actual = $routes->all();
+        $actual = $this->router->all();
 
         //assert
         $this->assertEquals($expected, $actual);
-        $this->assertCount(2, $routes);
-        $this->assertEquals(2, count($routes->all('GET')));
-        $this->assertEquals(2, count($routes->all('POST')));
-        $this->assertEquals($routeCreate, $routes->matchCurrent($request));
+        $this->assertCount(2, $this->router);
+        $this->assertEquals(2, count($this->router->all('GET')));
+        $this->assertEquals(2, count($this->router->all('POST')));
+        $this->assertEquals($routeCreate, $this->router->match($request));
     }
 
     /**
      * @group integration
-     * @expectedException \Tdw\Routing\Exception\RouteNotFoundException
-     * @expectedExceptionMessage No matching routes
      */
     public function testShouldReturnRouteNotFoundException()
     {
         //arrange
-        $request = new ServerRequest(new GET(), '/articles/create');
-        $routes = new Routes();
+        $request = new ServerRequest('GET', '/articles/create');
         $route = new Route('/not-found', function () {
         }, 'articles.create');
-        $routes->addGET($route);
+        $this->router->addGET($route);
 
         //act
-        $routes->matchCurrent($request);
+        $this->expectException(RouteNotFoundException::class);
+        $this->expectExceptionMessage('No matching route');
+        $this->router->match($request);
         //assert
     }
 
     /**
      * @group integration
-     * @expectedException \Tdw\Routing\Exception\RouteNameNotFoundException
-     * @expectedExceptionMessage No route matches this name
      */
     public function testShouldReturnRouteNameNotFoundException()
     {
         //arrange
-        $request = new ServerRequest(new GET(), '/articles/create');
-        $routes = new Routes();
+        $request = new ServerRequest('GET', '/articles/create');
         $route = new Route('/not-found', function () {
         }, 'articles.create');
-        $routes->addGET($route);
+        $this->router->addGET($route);
 
         //act
-        $routes->generateUrl('route-name', []);
+        $this->expectException(RouteNameNotFoundException::class);
+        $this->expectExceptionMessage('No route matches this name');
+        $this->router->generateUri('route-name', []);
 
         //assert
     }

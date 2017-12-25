@@ -6,7 +6,7 @@ Simple router to GET and POST requests.
 
 ## Requirements
 
-PHP: >=7.1
+PHP: >=7.0
 
 ## Install
 
@@ -23,14 +23,14 @@ require 'to/path/vendor/autoload.php';
 ```php
 <?php
 
-$routes = new \Tdw\Routing\Routes();
+$router = new \Tdw\Routing\Router();
 ```
 
 `Closure`
 ```php
 <?php
 
-$routes->addGET(new \Tdw\Routing\Route('/', function (){
+$router->addGET(new \Tdw\Routing\Route('/', function (){
     echo 'Home page';
 }, 'home'));
 ```
@@ -58,8 +58,8 @@ class ArticleAction
     }
 }
 
-$routes->addGET(new \Tdw\Routing\Route('/articles', 'ArticleAction@index', 'article.index'));
-$routes->addPOST(new \Tdw\Routing\Route('/articles/save', 'ArticleAction@save', 'article.save'));
+$router->addGET(new \Tdw\Routing\Route('/articles', 'ArticleAction@index', 'article.index'));
+$router->addPOST(new \Tdw\Routing\Route('/articles/save', 'ArticleAction@save', 'article.save'));
 ```
 
 `Rule`
@@ -71,14 +71,14 @@ $route = (new \Tdw\Routing\Route('/article/{slug}/{id}', function () {
 }, 'articles.show'))
     ->addRule('slug', new \Tdw\Routing\Rule\Slug())
     ->addRule('id', new \Tdw\Routing\Rule\Id());
-$routes->addGET($route);
+$router->addGET($route);
 ```
 
 `Match`
 ```php
 <?php
 
-$currentRoute = $routes->matchCurrent(\GuzzleHttp\Psr7\ServerRequest::fromGlobals());
+$currentRoute = $router->match(\GuzzleHttp\Psr7\ServerRequest::fromGlobals());
 
 var_dump($currentRoute);
 ```
@@ -98,18 +98,18 @@ var_dump($currentRoute);
 class App
 {
     /**
-     * @var \Tdw\Routing\Contract\Routes
+     * @var \Tdw\Routing\Contract\Router
      */
-    private $routes;
+    private $router;
 
-    function __construct(\Tdw\Routing\Contract\Routes $routes)
+    function __construct(\Tdw\Routing\Contract\Router $router)
     {
-        $this->routes = $routes;
+        $this->router = $router;
     }
 
     function run(\Psr\Http\Message\ServerRequestInterface $request)
     {
-        if ($route = $this->routes->matchCurrent($request)) {
+        if ($route = $this->router->match($request)) {
             if ($route->getCallback() instanceof Closure) {
                 return call_user_func_array($route->getCallback(), $route->getParameters());
             }
@@ -121,6 +121,6 @@ class App
     }
 }
 
-(new App($routes))->run(\GuzzleHttp\Psr7\ServerRequest::fromGlobals());
+(new App($router))->run(\GuzzleHttp\Psr7\ServerRequest::fromGlobals());
 
 ```

@@ -8,11 +8,37 @@ use Psr\Http\Message\UriInterface;
 
 interface Route
 {
-    public function match(UriInterface $uri): bool;
-    public function getName(): ?string;
+    /**
+     * @param UriInterface $uri
+     * @return bool
+     */
+    public function parseUri(UriInterface $uri): bool;
+
+    /**
+     * @return string
+     */
+    public function getName(): string;
+
+    /**
+     * @return mixed
+     */
     public function getCallback();
+
+    /**
+     * @return array
+     */
     public function getParameters(): array;
+
+    /**
+     * @param string $key
+     * @param Rule $rule
+     * @return Route
+     */
     public function addRule(string $key, Rule $rule): Route;
-    public function getRules(): array;
-    public function getUrl(array $parameters): string;
+
+    /**
+     * @param array $parameters
+     * @return string
+     */
+    public function getUri(array $parameters): string;
 }
