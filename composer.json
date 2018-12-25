@@ -1,6 +1,6 @@
 {
   "name": "tdw/routing",
-  "description": "Simple router to GET and POST requests.",
+  "description": "Simple router to GET, POST, PUT, PATCH, DELETE requests.",
   "keywords": ["php", "route", "routes php"],
   "type": "library",
   "license": "MIT",

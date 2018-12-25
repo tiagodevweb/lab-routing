@@ -8,6 +8,8 @@ use Psr\Http\Message\UriInterface;
 use Tdw\Routing\Contract\Route as IRoute;
 use Tdw\Routing\Contract\Rule;
 use Tdw\Routing\Rule\Url;
+use Tdw\Routing\Rule\Id;
+use Tdw\Routing\Rule\Slug;
 
 class Route implements IRoute
 {
@@ -85,13 +87,40 @@ class Route implements IRoute
 
     private function ruleDefault()
     {
-        if (strpos($this->path, '{') and strpos($this->path, '}')) {
+        if ($this->hasParameter($this->path)) {
             $parameters = array_filter(explode('/', $this->path));
             foreach ($parameters as $parameter) {
-                if ('{' === $parameter[0] and '}' === substr($parameter, -1)) {
-                    $this->addRule(str_replace(['{','}'], '', $parameter), new Url());
+                if ($this->isParameter($parameter)) {
+                    $key = $this->clearParameter($parameter);
+                    switch ($key) {
+                        case 'id':
+                            $this->addRule($key, new Id());
+                            break;
+                        case 'slug':
+                            $this->addRule($key, new Slug());
+                            break;
+                        default:
+                            $this->addRule($key, new Url());
+                            break;
+                    }
+                    
                 }
             }
         }
+    }
+
+    private function hasParameter(string $path): bool
+    {
+        return strpos($path, '{') and strpos($path, '}');
+    }
+
+    private function isParameter(string $string): bool
+    {
+        return '{' === $string[0] and '}' === substr($string, -1);
+    }
+
+    private function clearParameter(string $parameter)
+    {
+        return str_replace(['{','}'], '', $parameter);
     }
 }

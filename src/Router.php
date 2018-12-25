@@ -28,6 +28,21 @@ class Router implements IRouter
         return $this->add($route, 'POST');
     }
 
+    public function addPUT(IRoute $route): IRouter
+    {
+        return $this->add($route, 'PUT');
+    }
+
+    public function addPATCH(IRoute $route): IRouter
+    {
+        return $this->add($route, 'PATCH');
+    }
+
+    public function addDELETE(IRoute $route): IRouter
+    {
+        return $this->add($route, 'DELETE');
+    }
+
     /**
      * @inheritdoc
      */

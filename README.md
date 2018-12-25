@@ -1,6 +1,6 @@
 # Routing
 
-Simple router to GET and POST requests.
+Simple router to GET, POST, PUT, PATCH, DELETE requests.
 
 [![Build Status](https://travis-ci.org/tiagodevweb/routing.svg?branch=master)](https://travis-ci.org/tiagodevweb/routing)
 
@@ -90,6 +90,16 @@ var_dump($currentRoute);
 \Tdw\Routing\Exception\RouteNameNotFoundException
 ```
 
+## Suport for methods
+
+```
+- GET
+- POST
+- PUT
+- PATCH
+- DELETE
+```
+
 ## Integration suggestion
 
 ```php
@@ -127,7 +137,7 @@ class App
 
 ## Contributing
 
-Add new methods.
+Add new features.
 
 ## License
 

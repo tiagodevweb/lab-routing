@@ -9,7 +9,7 @@ use Tdw\Routing\Exception\RouteNameNotFoundException;
 use Tdw\Routing\Exception\RouteNotFoundException;
 use Tdw\Routing\Route;
 use Tdw\Routing\Router;
-use Tdw\Routing\Rule\Url;
+use Tdw\Routing\Rule\Id;
 
 class RouterTest extends TestCase
 {
@@ -103,7 +103,7 @@ class RouterTest extends TestCase
         //assert
         $this->assertEquals($expected, $actual);
         $this->assertEquals(['id' => 25], $route->getParameters());
-        $this->assertEquals(['id' => (new Url())->asRegex()], $route->getRules());
+        $this->assertEquals(['id' => (new Id())->asRegex()], $route->getRules());
     }
 
     /**
@@ -115,6 +115,60 @@ class RouterTest extends TestCase
         $request = new ServerRequest('POST', '/articles/create');
         $route = new Route('/articles/create', 'App\ArticlesAction@create', 'articles.create');
         $this->router->addPOST($route);
+
+        //act
+        $expected = $route;
+        $actual = $this->router->match($request);
+
+        //assert
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @group integration
+     */
+    public function testShouldReturnMatchCurrentRoutePut()
+    {
+        //arrange
+        $request = new ServerRequest('PUT', '/articles/upate/1');
+        $route = new Route('/articles/upate/{id}', 'App\ArticlesAction@upate', 'articles.upate');
+        $this->router->addPUT($route);
+
+        //act
+        $expected = $route;
+        $actual = $this->router->match($request);
+
+        //assert
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @group integration
+     */
+    public function testShouldReturnMatchCurrentRoutePatch()
+    {
+        //arrange
+        $request = new ServerRequest('PATCH', '/articles/upate/1');
+        $route = new Route('/articles/upate/{id}', 'App\ArticlesAction@upate', 'articles.upate');
+        $this->router->addPATCH($route);
+
+        //act
+        $expected = $route;
+        $actual = $this->router->match($request);
+
+        //assert
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * @group integration
+     */
+    public function testShouldReturnMatchCurrentRouteDelete()
+    {
+        //arrange
+        $request = new ServerRequest('DELETE', '/articles/delete/1');
+        $route = new Route('/articles/delete/{id}', 'App\ArticlesAction@delete', 'articles.delete');
+        $this->router->addDELETE($route);
 
         //act
         $expected = $route;
