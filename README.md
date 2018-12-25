@@ -124,3 +124,11 @@ class App
 (new App($router))->run(\GuzzleHttp\Psr7\ServerRequest::fromGlobals());
 
 ```
+
+## Contributing
+
+Add new methods.
+
+## License
+
+The Tdw Routing is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
