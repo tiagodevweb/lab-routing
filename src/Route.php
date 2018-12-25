@@ -102,7 +102,7 @@ class Route implements IRoute
                         default:
                             $this->addRule($key, new Url());
                             break;
-                    }                    
+                    }
                 }
             }
         }

@@ -14,5 +14,6 @@ install:
   - composer install
 
 script:
+  - ./vendor/bin/phpcbf
   - ./vendor/bin/phpcs
   - ./vendor/bin/phpunit --coverage-text
